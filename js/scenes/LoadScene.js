@@ -59,6 +59,6 @@ export class LoadScene extends Phaser.Scene {
         })
     }
     create() {
-        this.scene.start(CTS.SCENES.GAME)
+        this.scene.start(CTS.SCENES.MENU)
     }
 }
