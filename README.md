@@ -1,4 +1,3 @@
 # About Disuqi.github.io
 To use the website go to https://disuqi.github.io
-This website is about me, my projects, my work experience, all put in a simple game that you need to play through in order to find everything out.
-Currently the website is incomplete, I only started it recently therefore you cannot do much.
+I wanted to learn JavaScript and I thought it would be fun if I learned it by making a simple video game. So I did, I utilised the framework Phaser 3 to make this very simple and short game. The code is messy and unorganised, however, I learned a lot from this project which was my goal all along!
