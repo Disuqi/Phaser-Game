@@ -7,10 +7,8 @@ export class GameScene extends Phaser.Scene {
     level;
     controlsOFF;
     gameOver;
-    //Text
-    welcome;
-    aboutMe;
-
+    inAnimation;
+    readingComputer;
     constructor() {
         super({
             key: CTS.SCENES.GAME
@@ -18,18 +16,9 @@ export class GameScene extends Phaser.Scene {
         this.hasKey = false;
         this.level = 0;
         this.controlsOFF = false;
-        this.welcome = 'Welcome to my Website!\nMy name is Disuqi Hijazi, I am a university student.\n' +
-            'I go to Salford University and I am studying computer science\n' +
-            'This webstie is all about me, my projects, education, work experience\n' +
-            'but you have to play the game to see all the information!\n' +
-            'I Hope you\'ll like it!';
-        this.aboutMe = 'I am a hardworking, reliable, and responsible individual who is confident and enjoys taking on challenges\n' +
-            'and actively working on any criticism I may receive.\n' +
-            'Ambitious and diligent in all my work to ensure any given tasks are completed in the best quality manner.\n' +
-            'I am capable and happy to work independently or unsupervised. Moreover, I am friendly and compassionate\n' +
-            'which enables me to remain level-headed and interact with customers to ensure the best experience is provided.\n' +
-            'I am currently a student at Salford University, studying computer science and looking for an internship or part-time job in the Technological industry.';
         this.gameOver = false;
+        this.inAnimation = false;
+        this.readingComputer = false;
     }
 
     create() {
@@ -176,6 +165,7 @@ export class GameScene extends Phaser.Scene {
 
     //Functions for the computer
     onComputer(player, computer) {
+        this.cursors.s.emitOnRepeat = false;
         //Handling text to help the player
         if (this.readComputerText == null) {
             this.readComputerText = this.add.text(this.computer.x, this.computer.y - 130, 'Press S or ↓ to turn ON', { fontSize: '24px', fill: '#41FF00', backgroundColor: '#3b4566', padding: 10, fontFamily: 'Cascadia Code' }).setOrigin(0.5, 0.5);
@@ -184,26 +174,50 @@ export class GameScene extends Phaser.Scene {
         }
 
         //Turning on the computer
-        if (this.cursors.s.isDown || this.cursors.down.isDown) {
+        if ((this.cursors.s.isDown || this.cursors.down.isDown) && this.player.body.blocked.down) {
             this.readComputer();
         }
     }
 
     readComputer() {
-        if (this.inAnimation == false) {
-            this.walkToComputer.duration = Math.abs(this.player.x - 207) * 8;
+        console.log("Reading computer = " + this.readingComputer);
+        console.log("inAnimation = " + this.inAnimation)
+        if (this.readingComputer == false && this.inAnimation == false) {
+            this.readingComputer = true;
+            this.inAnimation = true;
+            this.walkToComputer.setTimeScale(1 / (Math.abs(this.player.x - 207) / 150));
+            this.readComputerText.visible = false;
+            this.player.resetFlip();
+            if (this.player.x > 207) {
+                this.player.toggleFlipX();
+            }
+            this.player.anims.play('run', true);
+            this.walkToComputer.play();
+            this.computer.on("animationcomplete", () => {
+                if (this.monitor == null) {
+                    this.monitor = this.physics.add.image(0, 0, 'monitor');
+                    this.monitor.setScale(0.67);
+                    this.monitor.setOrigin(0, 0);
+                    this.monitor.setDepth(2);
+                    this.monitor.body.allowGravity = false;
+                } else {
+                    this.monitor.visible = true;
+                }
+                this.inAnimation = false;
+            });
+        } else if (this.readingComputer == true && this.inAnimation == false) {
+            this.readingComputer = false;
+            this.inAnimation = false;
+            if (this.monitor == null) {
+                this.monitor = this.physics.add.image(0, 0, 'monitor');
+                this.monitor.setScale(0.67);
+                this.monitor.setOrigin(0, 0);
+                this.monitor.setDepth(2);
+                this.monitor.body.allowGravity = false;
+            } else {
+                this.monitor.visible = false;
+            }
         }
-        this.inAnimation = true;
-        this.readComputerText.visible = false;
-        this.player.resetFlip();
-        if (this.player.x > 207) {
-            this.player.toggleFlipX();
-        }
-        this.player.anims.play('run', true);
-        this.walkToComputer.play();
-        this.computer.on("animationcomplete", () => {
-
-        });
         // if (!this.lookingAtMonitor) {
         //     this.inAnimation = true;
         //     this.player.resetFlip();
@@ -354,10 +368,11 @@ export class GameScene extends Phaser.Scene {
     }
 
     createTweens() {
+
         this.walkToComputer = this.tweens.create({
             targets: this.player,
             x: 207,
-            duration: 0,
+            duration: 1000,
             ease: 'Linear',
         }).on('complete', () => {
             this.player.resetFlip();
@@ -370,7 +385,7 @@ export class GameScene extends Phaser.Scene {
         this.monitorAnim = this.tweens.create({
             targets: this.monitor,
             scale: 0.67,
-            duration: 1000,
+            duration: 1,
             ease: 'Linear',
         });
     }
